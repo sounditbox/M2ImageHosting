@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Все изображения</title>
+</head>
+<body>
+<script>
+    fetch('/api/images').then(response => response.json()).then(images => setImages(images.images));
+
+    function setImages(images) {
+        const imagesContainer = document.createElement('div');
+        images.forEach(image => {
+            const imageElement = document.createElement('img');
+            imageElement.src = `/images/${image}`;
+            imagesContainer.appendChild(imageElement);
+        });
+        document.body.appendChild(imagesContainer);
+    }
+</script>
+</body>
+</html>
