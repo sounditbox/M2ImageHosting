@@ -16,6 +16,8 @@ LOG_FILE = 'app.log'
 logger.add(LOG_PATH + LOG_FILE,
            format='[{time:YYYY-MM-DD HH:mm:ss}] {level}: {message}',
            level='INFO')
+
+
 class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
     server_version = 'Image Hosting Server v0.1'
 
@@ -27,12 +29,8 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         self.post_routes = {
             '/upload/': self.post_upload
         }
-        self.default = lambda: self.send_html('404.html', 404)
+        self.default_response = lambda: self.send_html('404.html', 404)
         super().__init__(request, client_address, server)
-
-    def do_GET(self):
-        logger.info(f'GET {self.path}')
-        self.get_routes.get(self.path, self.default)()
 
     def get_images(self):
         self.send_response(200)
@@ -45,10 +43,6 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
 
     def get_upload(self):
         self.send_html('upload.html')
-
-    def do_POST(self):
-        logger.info(f'POST {self.path}')
-        self.post_routes.get(self.path, self.default)()
 
     def post_upload(self):
         length = int(self.headers.get('Content-Length'))
@@ -75,6 +69,14 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         with open(STATIC_PATH + file_path, 'rb') as file:
             self.wfile.write(file.read())
+
+    def do_GET(self):
+        logger.info(f'GET {self.path}')
+        self.get_routes.get(self.path, self.default_response)()
+
+    def do_POST(self):
+        logger.info(f'POST {self.path}')
+        self.post_routes.get(self.path, self.default_response)()
 
 
 def run(server_class=HTTPServer, handler_class=ImageHostingHttpRequestHandler):
