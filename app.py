@@ -3,7 +3,7 @@ import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from uuid import uuid4
 
-SERVER_ADDRESS = ('localhost', 8000)
+SERVER_ADDRESS = ('0.0.0.0', 8000)
 STATIC_PATH = 'static/'
 IMAGES_PATH = 'images/'
 ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']
