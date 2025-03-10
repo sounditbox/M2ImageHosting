@@ -3,13 +3,19 @@ import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from uuid import uuid4
 
+from loguru import logger
+
 SERVER_ADDRESS = ('0.0.0.0', 8000)
 STATIC_PATH = 'static/'
 IMAGES_PATH = 'images/'
 ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']
 MAX_FILE_SIZE = 5 * 1024 * 1024
+LOG_PATH = 'logs/'
+LOG_FILE = 'app.log'
 
-
+logger.add(LOG_PATH + LOG_FILE,
+           format='[{time:YYYY-MM-DD HH:mm:ss}] {level}: {message}',
+           level='INFO')
 class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
     server_version = 'Image Hosting Server v0.1'
 
@@ -25,6 +31,7 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def do_GET(self):
+        logger.info(f'GET {self.path}')
         self.get_routes.get(self.path, self.default)()
 
     def get_images(self):
@@ -40,11 +47,13 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         self.send_html('upload.html')
 
     def do_POST(self):
+        logger.info(f'POST {self.path}')
         self.post_routes.get(self.path, self.default)()
 
     def post_upload(self):
         length = int(self.headers.get('Content-Length'))
         if length > MAX_FILE_SIZE:
+            logger.warning('File too large')
             self.send_html('upload_failed.html', 413)
             return
 
@@ -52,6 +61,7 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         _, ext = os.path.splitext(self.headers.get('Filename'))
         image_id = uuid4()
         if ext not in ALLOWED_EXTENSIONS:
+            logger.warning('File type not allowed')
             self.send_html('upload_failed.html', 400)
             return
 
@@ -69,14 +79,14 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
 
 def run(server_class=HTTPServer, handler_class=ImageHostingHttpRequestHandler):
     httpd = server_class(SERVER_ADDRESS, handler_class)
-    print(f'Serving on http://{SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]}')
+    logger.info(f'Serving on http://{SERVER_ADDRESS[0]}:{SERVER_ADDRESS[1]}')
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print('Keyboard interrupt received, exiting.')
+        logger.warning('Keyboard interrupt received, exiting.')
         httpd.server_close()
     finally:
-        print('Server stopped.')
+        logger.info('Server stopped.')
 
 
 if __name__ == '__main__':
