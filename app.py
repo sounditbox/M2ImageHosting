@@ -13,18 +13,8 @@ MAX_FILE_SIZE = 5 * 1024 * 1024
 class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
     server_version = 'Image Hosting Server v0.1'
 
-    # ВСЕ get-запросы обрабатываются здесь
     def do_GET(self):
-        if self.path == '/':
-            self.send_html('index.html')
-        if self.path.startswith('/images/') and any(self.path.endswith(ext) for ext in ALLOWED_EXTENSIONS):
-            self.send_response(200)
-            self.send_header('Content-type', 'image/jpeg')
-            self.end_headers()
-            filename = self.path.split('/')[-1]
-            with open(IMAGES_PATH + filename, 'rb') as file:
-                self.wfile.write(file.read())
-        elif self.path == '/api/images':
+        if self.path == '/api/images':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -32,16 +22,15 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
                 'images': next(os.walk(IMAGES_PATH))[2]
             }
             self.wfile.write(json.dumps(response).encode('utf-8'))
-
-        elif self.path == '/images':
+        elif self.path == '/images/':
             self.send_html('images.html')
-        elif self.path == '/upload':
+        elif self.path == '/upload/':
             self.send_html('upload.html')
         else:
             self.send_html('404.html', 404)
 
     def do_POST(self):
-        if self.path == '/upload':
+        if self.path == '/upload/':
             length = int(self.headers.get('Content-Length'))
             if length > MAX_FILE_SIZE:
                 self.send_html('upload_failed.html', 413)
