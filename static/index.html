@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Главная</title>
-    <style type="text/css">
-        h1 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            background-color: lightgrey;
-            border-radius: 20px;
-            }
-    </style>
-
+    <title>Главная - Image Hosting</title>
+    <link rel="stylesheet" href="styles_main.css">
 </head>
-<body>
-<h1>Главная</h1>
-<a href="/upload"><button>Загрузить</button></a>
-<a href="/images"><button>Каталог</button></a>
+<body class="hero-body">
+<div>
+    <header class="hero-header">
+        <h1>Upload Photos</h1>
+        <p>Upload selfies, memes, or any fun pictures here.</p>
+        <a href="/upload/" class="hero-button">Take me to Showcase</a>
+    </header>
+
+    <section class="hero-section">
+        <img id="heroImage" width="412" height="1014">
+    </section>
+</div>
+
+<script src="main.js"></script>
 </body>
 </html>
+
