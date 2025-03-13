@@ -1,17 +1,3 @@
-const tabLinks = document.querySelectorAll('.tab-link');
-const tabContents = document.querySelectorAll('.tab-content');
-
-tabLinks.forEach((link) => {
-  link.addEventListener('click', () => {
-    tabLinks.forEach((item) => item.classList.remove('active'));
-    tabContents.forEach((content) => content.classList.remove('active'));
-
-    link.classList.add('active');
-    const tabId = link.getAttribute('data-tab');
-    document.getElementById(tabId).classList.add('active');
-  });
-});
-
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileInput');
 const browseButton = document.getElementById('browseButton');
@@ -63,28 +49,20 @@ function handleFiles(files) {
 
   dropArea.classList.remove('error');
 
-  simulateUpload(file)
-    .then((url) => {
-      dropArea.classList.add('success');
-      uploadUrlInput.value = url;
-    })
-    .catch(() => {
-      dropArea.classList.add('error');
-    });
+
 }
 
-function simulateUpload(file) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve('https://sharefile.xyz/myfile.jpg');
-    }, 1500);
-  });
-}
+
 
 copyButton.addEventListener('click', () => {
   navigator.clipboard.writeText(uploadUrlInput.value)
     .then(() => {
-      alert('Link copied to clipboard!');
+      copyButton.textContent = 'Copied!';
+      copyButton.style.backgroundColor = '#7B7B7B';
+      setTimeout(() => {
+        copyButton.innerHTML = '<img src="copy.png" alt="Copy" width="20" height="20">';
+        copyButton.style.backgroundColor = '#007BFF';
+      }, 1000);
     })
     .catch((err) => {
       console.error('Failed to copy:', err);
@@ -102,23 +80,14 @@ fileInput.addEventListener('change', () => {
     },
     body: file
   })
-  .then(response => response.text())
-  .then(html => {
-    document.getElementById('uploadResult').innerHTML = html;
+  .then(response => {
+    document.getElementById('uploadUrl').value = response.headers.get('Location');
+
+    copyButton.disabled = false;
+    dropArea.classList.add('success');
   })
   .catch(error => {
     console.error('Ошибка загрузки:', error);
+    dropArea.classList.add('error');
   });
 });
-
-//     fetch('/api/images').then(response => response.json()).then(images => setImages(images.images));
-
-//    function setImages(images) {
-//        const imagesContainer = document.createElement('div');
-//        images.forEach(image => {
-//            const imageElement = document.createElement('img');
-//            imageElement.src = `/images/${image}`;
-//            imagesContainer.appendChild(imageElement);
-//        });
-//        document.body.appendChild(imagesContainer);
-//    }

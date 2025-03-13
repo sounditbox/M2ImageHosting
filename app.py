@@ -57,11 +57,14 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
 
         with open(IMAGES_PATH + f'{image_id}{ext}', 'wb') as file:
             file.write(data)
-        self.send_html('upload_success.html')
+        self.send_html('upload_success.html', headers={'Location': f'http://localhost/{IMAGES_PATH}/{image_id}{ext}'})
 
-    def send_html(self, file_path, code=200):
+    def send_html(self, file_path, code=200, headers=None):
         self.send_response(code)
         self.send_header('Content-type', 'text/html')
+        if headers:
+            for header, value in headers.items():
+                self.send_header(header, value)
         self.end_headers()
         with open(STATIC_PATH + file_path, 'rb') as file:
             self.wfile.write(file.read())

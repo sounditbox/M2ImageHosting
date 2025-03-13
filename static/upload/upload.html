@@ -13,11 +13,6 @@
     <p>Upload selfies, memes, or any fun pictures here.</p>
 </header>
 
-<nav class="tabs">
-    <button class="tab-link active" data-tab="upload">Upload</button>
-    <button class="tab-link" data-tab="images">Images</button>
-</nav>
-
 <main>
     <section id="upload" class="tab-content active">
         <div class="upload-area" id="drop-area">
@@ -37,31 +32,10 @@
         <div class="current-upload">
             <label for="uploadUrl">Current Upload</label>
             <div class="current-upload__field">
-                <input type="text" id="uploadUrl" placeholder="https://"/>
-                <button id="copyButton">COPY</button>
+                <input type="text" id="uploadUrl" placeholder="http://"/>
+                <button id="copyButton" disabled><img src="copy.png" alt="Copy" width="20" height="20"></button>
             </div>
         </div>
-    </section>
-    <section id="images" class="tab-content">
-        <table class="images-table">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Url</th>
-                <th>Delete</th>
-            </tr>
-            </thead>
-            <tbody id="imagesTableBody">
-            <tr>
-                <td>Cat.png</td>
-                <td><a href="https://sharefile.xyz/file.jpg" target="_blank">https://sharefile.xyz/file.jpg</a>
-                </td>
-                <td>
-                    <button class="delete-btn">X</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
     </section>
 </main>
 
