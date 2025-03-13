@@ -91,3 +91,8 @@ fileInput.addEventListener('change', () => {
     dropArea.classList.add('error');
   });
 });
+
+document.getElementById('btnGoToImages').addEventListener('click', (event) => {
+    window.location.href = '/images/';
+});
+
