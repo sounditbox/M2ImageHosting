@@ -23,8 +23,7 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
         self.get_routes = {
-            '/api/images': self.get_images,
-            '/upload/': self.get_upload
+            '/api/images': self.get_images
         }
         self.post_routes = {
             '/upload/': self.post_upload
@@ -40,9 +39,6 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
             'images': next(os.walk(IMAGES_PATH))[2]
         }
         self.wfile.write(json.dumps(response).encode('utf-8'))
-
-    def get_upload(self):
-        self.send_html('upload.html')
 
     def post_upload(self):
         length = int(self.headers.get('Content-Length'))
