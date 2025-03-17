@@ -35,13 +35,9 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def get_images(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        response = {
+        self.send_json({
             'images': next(os.walk(IMAGES_PATH))[2]
-        }
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+        })
 
     def post_upload(self):
         length = int(self.headers.get('Content-Length'))
@@ -76,7 +72,7 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
             return
 
         os.remove(image_path)
-        self.send_html('upload_success.html')
+        self.send_json({'Success': 'Image deleted'})
 
     def send_html(self, file_path, code=200, headers=None):
         self.send_response(code)
@@ -87,6 +83,15 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         with open(STATIC_PATH + file_path, 'rb') as file:
             self.wfile.write(file.read())
+
+    def send_json(self, response: dict, code=200, headers=None):
+        self.send_response(code)
+        self.send_header('Content-type', 'application/json')
+        if headers:
+            for header, value in headers.items():
+                self.send_header(header, value)
+        self.end_headers()
+        self.wfile.write(json.dumps(response).encode('utf-8'))
 
     def do_GET(self):
         logger.info(f'GET {self.path}')
