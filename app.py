@@ -12,6 +12,7 @@ ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']
 MAX_FILE_SIZE = 5 * 1024 * 1024
 LOG_PATH = 'logs/'
 LOG_FILE = 'app.log'
+ERROR_FILE = 'upload_failed.html'
 
 logger.add(LOG_PATH + LOG_FILE,
            format='[{time:YYYY-MM-DD HH:mm:ss}] {level}: {message}',
@@ -43,7 +44,7 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get('Content-Length'))
         if length > MAX_FILE_SIZE:
             logger.warning('File too large')
-            self.send_html('upload_failed.html', 413)
+            self.send_html(ERROR_FILE, 413)
             return
 
         data = self.rfile.read(length)
@@ -51,7 +52,7 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         image_id = uuid4()
         if ext not in ALLOWED_EXTENSIONS:
             logger.warning('File type not allowed')
-            self.send_html('upload_failed.html', 400)
+            self.send_html(ERROR_FILE, 400)
             return
 
         with open(IMAGES_PATH + f'{image_id}{ext}', 'wb') as file:
@@ -62,13 +63,13 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
         image_id = self.headers.get('Filename')
         if not image_id:
             logger.warning('Image not found')
-            self.send_html('upload_failed.html', 404)
+            self.send_html(ERROR_FILE, 404)
             return
 
         image_path = IMAGES_PATH + image_id
         if not os.path.exists(image_path):
             logger.warning('Image not found')
-            self.send_html('upload_failed.html', 404)
+            self.send_html(ERROR_FILE, 404)
             return
 
         os.remove(image_path)
