@@ -62,7 +62,6 @@ class ImageHostingHttpRequestHandler(BaseHTTPRequestHandler):
             file.write(data)
         self.send_html('upload_success.html', headers={'Location': f'http://localhost/{IMAGES_PATH}/{image_id}{ext}'})
 
-
     def delete_image(self):
         image_id = self.headers.get('Filename')
         if not image_id:

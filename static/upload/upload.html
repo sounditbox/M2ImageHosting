@@ -18,7 +18,7 @@
 
 <main>
     <section id="upload" class="tab-content active">
-        <div class="upload-area" id="drop-area">
+        <div class="upload-area" id="drop-area" ondrop="handleFiles(event.dataTransfer.files)">
             <div class="upload-area__icon">
                 <img src="upload.png" alt="Upload Icon" width="70" height="50"/>
             </div>

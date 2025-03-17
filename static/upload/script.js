@@ -22,7 +22,10 @@ dropArea.addEventListener('drop', (e) => {
   dropArea.classList.remove('dragover');
   const files = e.dataTransfer.files;
   if (files.length) {
+
+    fileInput.files = files;
     handleFiles(files);
+    uploadFile();
   }
 });
 
@@ -49,7 +52,6 @@ function handleFiles(files) {
 
   dropArea.classList.remove('error');
 
-
 }
 
 
@@ -69,7 +71,9 @@ copyButton.addEventListener('click', () => {
     });
 });
 
-fileInput.addEventListener('change', () => {
+fileInput.addEventListener('change', () => uploadFile());
+
+function uploadFile() {
   const file = fileInput.files[0];
   if (!file) return alert('Выберите файл для загрузки.');
 
@@ -85,12 +89,16 @@ fileInput.addEventListener('change', () => {
 
     copyButton.disabled = false;
     dropArea.classList.add('success');
+    setTimeout(() => {
+      dropArea.classList.remove('success');
+    }, 2000)
+
   })
   .catch(error => {
     console.error('Ошибка загрузки:', error);
     dropArea.classList.add('error');
   });
-});
+}
 
 document.getElementById('btnGoToImages').addEventListener('click', (event) => {
     window.location.href = '/images/';
