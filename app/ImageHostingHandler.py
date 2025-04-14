@@ -1,11 +1,42 @@
+import datetime
 import os
+from typing import Optional
 from uuid import uuid4
 
+import psycopg
 from loguru import logger
+from psycopg import connect
 
 from advanced_http_request_handler import AdvancedHTTPRequestHandler
 from settings import IMAGES_PATH, \
-    ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE
+    ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE, DB_NAME, DB_USER, \
+    DB_PASSWORD, DB_HOST
+
+
+def execute_query(query: str) -> None:
+    try:
+        logger.info(f'Executing query: {query}')
+        conn_str = f"dbname={DB_NAME} user={DB_USER} password={DB_PASSWORD} host={DB_HOST}"
+        logger.info(f'Connection string: {conn_str}')
+        with connect(conn_str) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                conn.commit()
+    except psycopg.Error as e:
+        logger.error(f'Database error: {e}')
+
+
+def execute_fetch_query(query: str, n: int = None) -> Optional[list]:
+    try:
+        with connect(f"dbname={DB_NAME} user={DB_USER}"
+                     f" password={DB_PASSWORD} host={DB_HOST}") as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                if not n:
+                    return cursor.fetchall()
+                return cursor.fetchmany(n)
+    except psycopg.Error as e:
+        logger.error(f'Database error: {e}')
 
 
 class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
@@ -25,8 +56,21 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def get_images(self):
+        images: list[tuple[int, str, str, str, datetime.datetime, str]] = (
+            execute_fetch_query("SELECT * FROM images"))
+        to_json_images = []
+        for image in images:
+            to_json_images.append({
+                'filename': image[1],
+                'original_name': image[2],
+                'size': image[3],
+                'upload_time': image[4].strftime('%Y-%m-%d %H:%M:%S'),
+                'file_type': image[5]
+            })
+        logger.info(f'Images: {to_json_images}')
         self.send_json({
-            'images': next(os.walk(IMAGES_PATH))[2]
+            'images': to_json_images
+            # next(os.walk(IMAGES_PATH))[2]
         })
 
     def post_upload(self):
@@ -37,13 +81,18 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
             return
 
         data = self.rfile.read(length)
-        _, ext = os.path.splitext(self.headers.get('Filename'))
+        orig_filename = self.headers.get('Filename')
+        _, ext = os.path.splitext(orig_filename)
         image_id = uuid4()
         if ext not in ALLOWED_EXTENSIONS:
             logger.warning('File type not allowed')
             self.send_html(ERROR_FILE, 400)
             return
-
+        execute_query(
+            f"INSERT INTO images (filename, original_name, size, file_type) "
+            f"VALUES ('{image_id}', '{orig_filename}',"
+            f" {length}, '{ext}');"
+        )
         with open(IMAGES_PATH + f'{image_id}{ext}', 'wb') as file:
             file.write(data)
         self.send_html('upload_success.html', headers={
