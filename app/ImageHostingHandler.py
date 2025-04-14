@@ -1,42 +1,12 @@
-import datetime
 import os
-from typing import Optional
 from uuid import uuid4
 
-import psycopg
 from loguru import logger
-from psycopg import connect
 
 from advanced_http_request_handler import AdvancedHTTPRequestHandler
+from DBManager import DBManager
 from settings import IMAGES_PATH, \
-    ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE, DB_NAME, DB_USER, \
-    DB_PASSWORD, DB_HOST
-
-
-def execute_query(query: str) -> None:
-    try:
-        logger.info(f'Executing query: {query}')
-        conn_str = f"dbname={DB_NAME} user={DB_USER} password={DB_PASSWORD} host={DB_HOST}"
-        logger.info(f'Connection string: {conn_str}')
-        with connect(conn_str) as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                conn.commit()
-    except psycopg.Error as e:
-        logger.error(f'Database error: {e}')
-
-
-def execute_fetch_query(query: str, n: int = None) -> Optional[list]:
-    try:
-        with connect(f"dbname={DB_NAME} user={DB_USER}"
-                     f" password={DB_PASSWORD} host={DB_HOST}") as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                if not n:
-                    return cursor.fetchall()
-                return cursor.fetchmany(n)
-    except psycopg.Error as e:
-        logger.error(f'Database error: {e}')
+    ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE
 
 
 class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
@@ -56,8 +26,7 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def get_images(self):
-        images: list[tuple[int, str, str, str, datetime.datetime, str]] = (
-            execute_fetch_query("SELECT * FROM images"))
+        images = DBManager().execute_fetch_query("SELECT * FROM images")
         to_json_images = []
         for image in images:
             to_json_images.append({
@@ -88,7 +57,7 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
             logger.warning('File type not allowed')
             self.send_html(ERROR_FILE, 400)
             return
-        execute_query(
+        DBManager().execute_query(
             f"INSERT INTO images (filename, original_name, size, file_type) "
             f"VALUES ('{image_id}', '{orig_filename}',"
             f" {length}, '{ext}');"
@@ -113,5 +82,5 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
             return
 
         os.remove(image_path)
-        execute_query(f"DELETE FROM images WHERE filename = '{filename}';")
+        DBManager().execute_query(f"DELETE FROM images WHERE filename = '{filename}';")
         self.send_json({'Success': 'Image deleted'})
