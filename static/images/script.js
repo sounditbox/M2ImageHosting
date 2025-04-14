@@ -23,7 +23,7 @@ function setImages(images) {
             fetch('/api/delete/', {
                 method: 'DELETE',
                 headers: {
-                    'Filename': image
+                    'Filename': fullname
                 }
             })
             .then(data => {

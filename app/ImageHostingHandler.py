@@ -99,17 +99,19 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
             'Location': f'http://localhost/{IMAGES_PATH}{image_id}{ext}'})
 
     def delete_image(self):
-        image_id = self.headers.get('Filename')
-        if not image_id:
-            logger.warning('Image not found')
+        full_filename = self.headers.get('Filename')
+        if not full_filename:
+            logger.warning('No filename provided')
             self.send_html(ERROR_FILE, 404)
             return
 
-        image_path = IMAGES_PATH + image_id
+        filename, _ = os.path.splitext(full_filename)
+        image_path = IMAGES_PATH + full_filename
         if not os.path.exists(image_path):
             logger.warning('Image not found')
             self.send_html(ERROR_FILE, 404)
             return
 
         os.remove(image_path)
+        execute_query(f"DELETE FROM images WHERE filename = '{filename}';")
         self.send_json({'Success': 'Image deleted'})
