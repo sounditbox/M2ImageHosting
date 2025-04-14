@@ -64,7 +64,7 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
                 'filename': image[1],
                 'original_name': image[2],
                 'size': image[3],
-                'upload_time': image[4].strftime('%Y-%m-%d %H:%M:%S'),
+                'upload_time': image[4].strftime('%Y-%m-%d %H:%M:%s'),
                 'file_type': image[5]
             })
         logger.info(f'Images: {to_json_images}')
