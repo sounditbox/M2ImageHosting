@@ -1,5 +1,21 @@
 const page = new URLSearchParams(window.location.search).get('page') || 1;
 // localhost/images?page=2
+let pageCounter = document.getElementById('pageCounter');
+pageCounter.innerHTML = page;
+
+let prevPage = document.getElementById('prevPage');
+if (page == 1) {
+    prevPage.classList.add('disabled');
+} else {
+    prevPage.onclick = () => {
+        window.location.href = `/images/?page=${page - 1}`;
+    }
+}
+
+let nextPage = document.getElementById('nextPage');
+nextPage.onclick = () => {
+    window.location.href = `/images/?page=${parseInt(page) + 1}`;
+}
 
 const tbody = document.getElementById('imagesTableBody');
 fetch('/api/images/', { headers: {'Page': page } })
