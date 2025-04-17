@@ -15,7 +15,8 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
     def __init__(self, request, client_address, server):
 
         self.get_routes = {
-            '/api/images/': self.get_images
+            '/api/images/': self.get_images,
+            '/api/images_count/': self.get_images_count
         }
         self.post_routes = {
             '/upload/': self.post_upload
@@ -24,6 +25,13 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
             '/api/delete/': self.delete_image
         }
         super().__init__(request, client_address, server)
+
+    def get_images_count(self):
+        count = DBManager().execute_fetch_query('SELECT COUNT(*) FROM images;')[0][0]
+        logger.info('Count: ' + str(count))
+        self.send_json({
+            'count': count
+        })
 
     def get_images(self):
         page = self.headers.get('Page')
@@ -44,7 +52,6 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
                 'upload_time': image[4].strftime('%Y-%m-%d %H:%M:%s'),
                 'file_type': image[5]
             })
-        logger.info(f'Images: {to_json_images}')
         self.send_json({
             'images': to_json_images
             # next(os.walk(IMAGES_PATH))[2]

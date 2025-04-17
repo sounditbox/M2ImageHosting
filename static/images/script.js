@@ -1,21 +1,22 @@
-const page = new URLSearchParams(window.location.search).get('page') || 1;
-// localhost/images?page=2
-let pageCounter = document.getElementById('pageCounter');
-pageCounter.innerHTML = page;
+const page = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+if (page < 1) {
+    window.location.href = '/images/?page=1';
+}
 
-let prevPage = document.getElementById('prevPage');
-if (page == 1) {
-    prevPage.classList.add('disabled');
-} else {
-    prevPage.onclick = () => {
-        window.location.href = `/images/?page=${page - 1}`;
+
+fetch('/api/images_count/').then(response => response.json()).then(count => {
+    let imagesCount = count.count;
+    let pagesCount = Math.ceil(count.count / 10);
+    if (page > pagesCount) {
+        window.location.href = '/images/?page=' + pagesCount;
     }
-}
+    const prevPage = addPaginationButton(page - 1, '⟵', false, pagesCount);
+    for (let i = 1; i <= pagesCount; i++) {
+        addPaginationButton(i, '', i == page);
+    }
+    const nextPage = addPaginationButton(page + 1, '⟶', false, pagesCount);
+});
 
-let nextPage = document.getElementById('nextPage');
-nextPage.onclick = () => {
-    window.location.href = `/images/?page=${parseInt(page) + 1}`;
-}
 
 const tbody = document.getElementById('imagesTableBody');
 fetch('/api/images/', { headers: {'Page': page } })
@@ -77,6 +78,28 @@ function setImages(images) {
         tbody.appendChild(tr);
     });
     document.body.appendChild(imagesContainer);
+}
+
+function addPaginationButton(page, text, active, pagesCount) {
+    if (text == '') {
+        text = page;
+    }
+    const li = document.createElement('li');
+    if (page < 1 || page > pagesCount) {
+        li.classList.add('disabled');
+    }
+    li.classList.add('page-item');
+    if (active) {
+        li.classList.add('active');
+    }
+    const a = document.createElement('a');
+    a.classList.add('page-link');
+    a.href = `/images/?page=${page}`;
+    a.innerHTML = text;
+    li.appendChild(a);
+    console.log(li);
+    document.getElementById('pagination').appendChild(li);
+    return li;
 }
 
 document.getElementById('btnGoToUpload').addEventListener('click', (event) => {
