@@ -1,6 +1,10 @@
+const page = new URLSearchParams(window.location.search).get('page') || 1;
+// localhost/images?page=2
 
 const tbody = document.getElementById('imagesTableBody');
-fetch('/api/images/').then(response => response.json()).then(images => setImages(images.images));
+fetch('/api/images/', { headers: {'Page': page } })
+.then(response => response.json())
+.then(images => setImages(images.images));
 
 function setImages(images) {
     const imagesContainer = document.createElement('div');

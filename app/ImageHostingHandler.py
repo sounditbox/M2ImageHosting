@@ -6,7 +6,7 @@ from loguru import logger
 from advanced_http_request_handler import AdvancedHTTPRequestHandler
 from DBManager import DBManager
 from settings import IMAGES_PATH, \
-    ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE
+    ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE, PAGE_LIMIT
 
 
 class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
@@ -26,7 +26,15 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def get_images(self):
-        images = DBManager().execute_fetch_query("SELECT * FROM images")
+        page = self.headers.get('Page')
+        logger.info(f'Page: {page}')
+        query = (f"SELECT * FROM images ORDER BY upload_time DESC"
+                 f" LIMIT {PAGE_LIMIT} OFFSET {(int(page) - 1) * PAGE_LIMIT};")
+        logger.info(f'Query: {query}')
+        images = DBManager().execute_fetch_query(query)
+        if not images:
+            return self.send_json({'images': []})
+
         to_json_images = []
         for image in images:
             to_json_images.append({

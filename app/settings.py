@@ -17,3 +17,6 @@ DB_USER = os.getenv('DB_USER') or 'postgres'
 DB_PASSWORD = os.getenv('DB_PASSWORD') or 'postgres'
 DB_HOST = os.getenv('DB_HOST') or 'db'
 DB_PORT = os.getenv('DB_PORT') or '5432'
+
+
+PAGE_LIMIT = 10
