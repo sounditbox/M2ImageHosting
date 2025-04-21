@@ -5,10 +5,11 @@ from dotenv import load_dotenv
 from loguru import logger
 from psycopg import connect
 
+from app.singleton import SingletonMeta
 from settings import DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 
-class DBManager:
+class DBManager(metaclass=SingletonMeta):
     def __init__(self, env_file='../.env'):
         load_dotenv(env_file)
         self.db_name = DB_NAME
