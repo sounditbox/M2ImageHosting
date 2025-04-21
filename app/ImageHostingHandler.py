@@ -26,14 +26,14 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
         }
         super().__init__(request, client_address, server)
 
-    def get_images_count(self):
+    def get_images_count(self) -> None:
         count = DBManager().execute_fetch_query('SELECT COUNT(*) FROM images;')[0][0]
         logger.info('Count: ' + str(count))
         self.send_json({
             'count': count
         })
 
-    def get_images(self):
+    def get_images(self) -> None:
         page = self.headers.get('Page')
         logger.info(f'Page: {page}')
         query = (f"SELECT * FROM images ORDER BY upload_time DESC"
@@ -57,7 +57,7 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
             # next(os.walk(IMAGES_PATH))[2]
         })
 
-    def post_upload(self):
+    def post_upload(self) -> None:
         length = int(self.headers.get('Content-Length'))
         if length > MAX_FILE_SIZE:
             logger.warning('File too large')
@@ -82,7 +82,7 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
         self.send_html('upload_success.html', headers={
             'Location': f'http://localhost/{IMAGES_PATH}{image_id}{ext}'})
 
-    def delete_image(self):
+    def delete_image(self) -> None:
         full_filename = self.headers.get('Filename')
         if not full_filename:
             logger.warning('No filename provided')

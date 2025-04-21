@@ -22,7 +22,7 @@ class DBManager(metaclass=SingletonMeta):
         self.conn = None
         self.conn = self.connect()
 
-    def set_conn_str(self):
+    def set_conn_str(self) -> None:
         self.conn_str = f"dbname={self.db_name} user={self.db_user} password={self.db_password} host={self.db_host} port={self.db_port}"
         logger.info(f'Setting connection string {self.conn_str}')
 
