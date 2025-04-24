@@ -11,6 +11,7 @@ from settings import IMAGES_PATH, \
 
 class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
     server_version = 'Image Hosting Server v0.1'
+
     def get_images_count(self) -> None:
         count = DBManager().execute_fetch_query('SELECT COUNT(*) FROM images;')[0][0]
         logger.info('Count: ' + str(count))
@@ -67,8 +68,8 @@ class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
         self.send_html('upload_success.html', headers={
             'Location': f'http://localhost/{IMAGES_PATH}{image_id}{ext}'})
 
-    def delete_image(self) -> None:
-        full_filename = self.headers.get('Filename')
+    def delete_image(self, image_id) -> None:
+        full_filename = image_id
         if not full_filename:
             logger.warning('No filename provided')
             self.send_html(ERROR_FILE, 404)

@@ -39,9 +39,9 @@ class AdvancedHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_request(self, method):
         logger.info(f'{method} {self.path}')
-        handler = self.router.resolve(method, self.path)
+        handler, params = self.router.resolve(method, self.path)
         if handler:
-            handler(self)
+            handler(self, **params)
         else:
             self.default_response()
 
