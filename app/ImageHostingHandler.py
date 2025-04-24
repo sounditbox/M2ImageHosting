@@ -3,29 +3,14 @@ from uuid import uuid4
 
 from loguru import logger
 
-from advanced_http_request_handler import AdvancedHTTPRequestHandler
 from DBManager import DBManager
+from advanced_http_request_handler import AdvancedHTTPRequestHandler
 from settings import IMAGES_PATH, \
     ALLOWED_EXTENSIONS, MAX_FILE_SIZE, ERROR_FILE, PAGE_LIMIT
 
 
 class ImageHostingHttpRequestHandler(AdvancedHTTPRequestHandler):
     server_version = 'Image Hosting Server v0.1'
-
-    def __init__(self, request, client_address, server):
-
-        self.get_routes = {
-            '/api/images/': self.get_images,
-            '/api/images_count/': self.get_images_count
-        }
-        self.post_routes = {
-            '/upload/': self.post_upload
-        }
-        self.delete_routes = {
-            '/api/delete/': self.delete_image
-        }
-        super().__init__(request, client_address, server)
-
     def get_images_count(self) -> None:
         count = DBManager().execute_fetch_query('SELECT COUNT(*) FROM images;')[0][0]
         logger.info('Count: ' + str(count))

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from psycopg import connect
 
-from app.singleton import SingletonMeta
+from singleton import SingletonMeta
 from settings import DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 
